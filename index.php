@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <?php require "Scripts/logFile.php" ?>
+<?php
+    $result = mysqli_query($conn,"SELECT * FROM readings ORDER BY time_server DESC LIMIT 1");
+    $resultsArray = mysqli_fetch_array($result);
+?>
 <html>
     <head>
         <title>Automated Climate Control System</title>
@@ -45,36 +49,18 @@
                             <div class="block">
                                 <div class="navbar navbar-inner block-header">
                                     <div class="muted pull-left">CurrentTemperature</div>
-                                    <div class="pull-right"><span class="badge badge-info"> <?php echo ""; ?></span>
+                                    <div class="pull-right"><span class="badge badge-info"> </span>
 
                                     </div>
                                 </div>
-                                <div class="block-content collapse in">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                           <?php
-                                           /*$x = 1;
-                                            while($geekArray = mysqli_fetch_array($geekResult)){
-                                                   echo "<tr>
-                                                         <td>" .$x."</td>
-                                                         <td>" .$geekArray['name']. "</td>
-                                                         <td>" .$geekArray['ICTSector'] . "</td>
-                                                         <td>" .$geekArray['institution'] . "</td>"; //institution
-                                                $x++;
-                                                if($x >= 5) break;
-                                            }*/
-                                           ?>
-                                        </tbody>
-                                    </table>
+                                <div class="block-content collapse in" style="margin-left: 160px">
+                                    <div class="span3">
+                                        <div class="chart" data-percent=" <?php echo $resultsArray['temp'];?>"><?php echo $resultsArray['temp']." C"; ?></div>
+                                        <div class="chart-bottom-heading"><span class="label label-info"></span>
+                                        </div>
+                                    </div>
                                 </div>
+
                             </div>
                        </div>
                         <div class="span6">
@@ -82,35 +68,15 @@
                             <div class="block">
                                 <div class="navbar navbar-inner block-header">
                                     <div class="muted pull-left">Target Temperature</div>
-                                    <div class="pull-right"><span class="badge badge-info"><?php echo ""; ?></span>
+                                    <div class="pull-right"><span class="badge badge-info"></span>
                                     </div>
                                 </div>
-                                <div class="block-content collapse in">
-                                    <table class="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                            /*$x = 1;
-                                            while($portArray = mysqli_fetch_array($portResult)){
-                                                echo "<tr>
-                                                             <td>" .$x."</td>
-                                                             <td>" .$portArray['itemName']. "</td>
-                                                             <td>" .$portArray['date'] . "</td>
-                                                             <td>" .$portArray['type'] . "</td>";
-                                                $x++;
-                                                if($x >= 5) break;
-                                            }*/
-                                        ?>
-
-                                        </tbody>
-                                    </table>
+                                <div class="block-content collapse in" style="margin-left: 160px">
+                                    <div class="span3">
+                                        <div class="chart" data-percent=" <?php echo $resultsArray['humidity'];?> "><?php echo $resultsArray['humidity']."%";?></div>
+                                        <div class="chart-bottom-heading"><span class="label label-info"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /block -->
@@ -128,7 +94,7 @@
                                 </div>
                                 <div class="block-content collapse in" style="margin-left: 160px">
                                     <div class="span3">
-                                        <div class="chart" data-percent="25">25%</div>
+                                        <div class="chart" data-percent=" <?php echo $resultsArray['humidity'];?> "><?php echo $resultsArray['humidity']."%";?></div>
                                         <div class="chart-bottom-heading"><span class="label label-info"></span>
                                         </div>
                                     </div>
@@ -143,32 +109,12 @@
                                     <div class="pull-right"><span class="badge badge-info"><?php echo ""; ?></span>
                                     </div>
                                 </div>
-                                <div class="block-content collapse in">
-                                    <table class="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        /*$x = 1;
-                                        while($portArray = mysqli_fetch_array($portResult)){
-                                            echo "<tr>
-                                                         <td>" .$x."</td>
-                                                         <td>" .$portArray['itemName']. "</td>
-                                                         <td>" .$portArray['date'] . "</td>
-                                                         <td>" .$portArray['type'] . "</td>";
-                                            $x++;
-                                            if($x >= 5) break;
-                                        }*/
-                                        ?>
-
-                                        </tbody>
-                                    </table>
+                                <div class="block-content collapse in" style="margin-left: 160px">
+                                    <div class="span3">
+                                        <div class="chart" data-percent="<?php echo $resultsArray['luminosity'];?> "><?php echo $resultsArray['luminosity']." lux";?></div>
+                                        <div class="chart-bottom-heading"><span class="label label-info"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /block -->
@@ -222,30 +168,28 @@
                 $('.chart').easyPieChart({animate: 1000});
             });
         </script>
-        <?php
 
-        $sql= "Select * From readings";
-        mysqli_query($conn,$sql);
+        <?php  //access db and take readings
+        $x = 0;
 
-        echo "<script>
-            $(function() {
-                // Morris Area Chart
-                Morris.Area({
+        $result = mysqli_query($conn,"SELECT * FROM readings ORDER BY time_server DESC LIMIT 5");
+        $resultsArray = mysqli_fetch_array($result);
+        $rowCount = $result->num_rows;
+
+        $strData = "<script>
+                    $(function() {
+                    // Morris Area Chart
+                    Morris.Area({
                     element: 'hero-area',
-                    data: [
-                        {period: '2011-1-1 11:01:00', temperature: 26},
-                        {period: '2011-1-1 11:01:30', temperature: 27},
-                        {period: '2011-1-1 11:03:00', temperature: 29},
-                        {period: '2011-1-1 11:04:00', temperature: 29},
-                        {period: '2011-1-1 11:05:00', temperature: 27},
-                        {period: '2011-1-1 11:06:00', temperature: 28},
-                        {period: '2011-1-1 11:07:00', temperature: 26},
-                        {period: '2011-1-1 11:08:00', temperature: 28},
-                        {period: '2011-1-1 11:09:00', temperature: 25},
-                        {period: '2011-1-1 11:10:00', temperature: 20},
-                        {period: '2011-1-1 11:11:00', temperature: 28}
-
-                    ],
+                    data: [";
+        while($resultsArray = mysqli_fetch_array($result)){
+            $strData .= "{period: '".$resultsArray['time_server']."', temperature: ".$resultsArray['temp']."}";
+            if($x != $rowCount){
+                $strData .= ",";
+            }
+            $x++;
+        }
+        $strData .="],
                     xkey: 'period',
                     ykeys: ['temperature'],
                     labels: ['temperature'],
@@ -254,7 +198,11 @@
                     lineColors: ['#67bdf8']
                 });
             });
-        </script>";
+            </script>";
+        echo $strData;
+        echo $rowCount;
+        echo $x;
+        mysqli_free_result($result);
         ?>
     </body>
     <?php
@@ -286,7 +234,16 @@
                         {period: '2011-1-1 11:09:00', temperature: 25, humidity: 19, luminosity: 15},
                         {period: '2011-1-1 11:10:00', temperature: 20, humidity: 24, luminosity: 12},
                         {period: '2011-1-1 11:11:00', temperature: 28, humidity: 27, luminosity: 17}
-
+                   {period: '2011-1-1 11:01:30', temperature: 27},
+                        {period: '2011-1-1 11:03:00', temperature: 29},
+                        {period: '2011-1-1 11:04:00', temperature: 29},
+                        {period: '2011-1-1 11:05:00', temperature: 27},
+                        {period: '2011-1-1 11:06:00', temperature: 28},
+                        {period: '2011-1-1 11:07:00', temperature: 26},
+                        {period: '2011-1-1 11:08:00', temperature: 28},
+                        {period: '2011-1-1 11:09:00', temperature: 25},
+                        {period: '2011-1-1 11:10:00', temperature: 20},
+                        {period: '2011-1-1 11:11:00', temperature: 28}
                     ],
                     xkey: 'period',
                     ykeys: ['temperature', 'humidity', 'luminosity'],
@@ -298,6 +255,27 @@
             });
       *
       *
+      *
+      *
+      *
+      * this works
+      echo "<script>
+            $(function() {
+                // Morris Area Chart
+                Morris.Area({
+                    element: 'hero-area',
+                    data: [
+                        {period: '".$resultsArray['time_workstation']."', temperature: ".$resultsArray['temp']."}
+                    ],
+                    xkey: 'period',
+                    ykeys: ['temperature'],
+                    labels: ['temperature'],
+                    lineWidth: 2,
+                    hideHover: 'auto',
+                    lineColors: ['#67bdf8']
+                });
+            });
+            </script>";
       */
     ?>
 </html>
